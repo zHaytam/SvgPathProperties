@@ -4,6 +4,10 @@ Pure C# SVG path functions (`getTotalLength()` and `getPointAtLength()`). This w
 
 **This is a port (code & unit tests) of the JavaScript version: https://github.com/rveciana/svg-path-properties**
 
+| NuGet Package          | Version                                                                                                                      | Download                                                                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| SvgPathProperties | [![NuGet](https://img.shields.io/nuget/v/SvgPathProperties.svg)](https://www.nuget.org/packages/SvgPathProperties) | [![Nuget](https://img.shields.io/nuget/dt/SvgPathProperties.svg)](https://www.nuget.org/packages/SvgPathProperties) |
+
 ## Usage
 
 ```c#
