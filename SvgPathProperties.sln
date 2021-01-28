@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SvgPathProperties", "SvgPat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SvgPathProperties.UnitTests", "SvgPathProperties.UnitTests\SvgPathProperties.UnitTests.csproj", "{5A729361-CBAA-4BAC-B8C2-91441900D8A4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestConsoleApp", "TestConsoleApp\TestConsoleApp.csproj", "{7AB28C01-87C0-4148-9581-E2CBE12E0CDF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{5A729361-CBAA-4BAC-B8C2-91441900D8A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A729361-CBAA-4BAC-B8C2-91441900D8A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A729361-CBAA-4BAC-B8C2-91441900D8A4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7AB28C01-87C0-4148-9581-E2CBE12E0CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7AB28C01-87C0-4148-9581-E2CBE12E0CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7AB28C01-87C0-4148-9581-E2CBE12E0CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7AB28C01-87C0-4148-9581-E2CBE12E0CDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
