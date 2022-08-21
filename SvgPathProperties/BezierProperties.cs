@@ -69,7 +69,7 @@ namespace SvgPathProperties
             return new PointProperties(x: point.X, y: point.Y, tangentX: tangent.X, tangentY: tangent.Y);
         }
 
-        public (Point, Point) GetBBox()
+        public Rect GetBBox()
         {
             var min = new[] { double.PositiveInfinity, double.PositiveInfinity };
             var max = new[] { double.NegativeInfinity, double.NegativeInfinity };
@@ -128,7 +128,7 @@ namespace SvgPathProperties
                 }
             }
 
-            return (new Point(min[0], min[1]), new Point(max[0], max[1]));
+            return new Rect(min[0], min[1], max[0], max[1]);
         }
 
         public Point GetTangentAtLength(double length)

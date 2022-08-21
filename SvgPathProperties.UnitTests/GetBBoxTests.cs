@@ -79,12 +79,12 @@ namespace SvgPathProperties.UnitTests
             double maxY)
         {
             var svgPath = new SVGPathProperties(path, unarc: true);
-            var (topLeft, bottomRight) = svgPath.GetBBox();
+            var bbox = svgPath.GetBBox();
 
-            topLeft.X.Should().BeApproximately(minX, precision: 0.00000000001);
-            topLeft.Y.Should().BeApproximately(minY, precision: 0.00000000001);
-            bottomRight.X.Should().BeApproximately(maxX, precision: 0.00000000001);
-            bottomRight.Y.Should().BeApproximately(maxY, precision: 0.00000000001);
+            bbox.Left.Should().BeApproximately(minX, precision: 0.00000000001);
+            bbox.Top.Should().BeApproximately(minY, precision: 0.00000000001);
+            bbox.Right.Should().BeApproximately(maxX, precision: 0.00000000001);
+            bbox.Bottom.Should().BeApproximately(maxY, precision: 0.00000000001);
         }
     }
 }

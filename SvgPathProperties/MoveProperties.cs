@@ -30,9 +30,6 @@ namespace SvgPathProperties
             throw new System.NotImplementedException();
         }
 
-        public (Point, Point) GetBBox()
-        {
-            return (new Point(X, Y), new Point(X, Y));
-        }
+        public Rect GetBBox() => new Rect(X, Y, X, Y);
     }
 }

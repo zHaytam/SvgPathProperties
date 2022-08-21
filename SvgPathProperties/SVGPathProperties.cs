@@ -484,7 +484,7 @@ namespace SvgPathProperties
             throw new Exception("Wrong function at this part.");
         }
 
-        public (Point, Point) GetBBox()
+        public Rect GetBBox()
         {
             var minX = double.PositiveInfinity;
             var minY = double.PositiveInfinity;
@@ -495,14 +495,14 @@ namespace SvgPathProperties
             {
                 if (part == null) continue;
 
-                (var topLeft, var bottomRight) = part.GetBBox();
-                minX = Math.Min(minX, topLeft.X);
-                minY = Math.Min(minY, topLeft.Y);
-                maxX = Math.Max(maxX, bottomRight.X);
-                maxY = Math.Max(maxY, bottomRight.Y);
+                var bbox = part.GetBBox();
+                minX = Math.Min(minX, bbox.Left);
+                minY = Math.Min(minY, bbox.Top);
+                maxX = Math.Max(maxX, bbox.Right);
+                maxY = Math.Max(maxY, bbox.Bottom);
             }
 
-            return (new Point(minX, minY), new Point(maxX, maxY));
+            return new Rect(minX, minY, maxX, maxY);
         }
 
         public Point GetTangentAtLength(double fractionLength)

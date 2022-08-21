@@ -6,6 +6,6 @@
         Point GetPointAtLength(double pos);
         Point GetTangentAtLength(double pos);
         PointProperties GetPropertiesAtLength(double pos);
-        (Point, Point) GetBBox();
+        Rect GetBBox();
     }
 }
