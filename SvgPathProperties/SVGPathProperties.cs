@@ -528,7 +528,7 @@ namespace SvgPathProperties
             var parts = new List<PartProperties>();
             for (var i = 0; i < _functions.Count; i++)
             {
-                if (_functions[i] != null)
+                if (!(_functions[i] is MoveProperties))
                 {
                     _functions[i] = _functions[i];
                     PartProperties properties = new PartProperties(_functions[i].GetPointAtLength(0),
