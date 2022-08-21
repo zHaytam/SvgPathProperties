@@ -265,13 +265,13 @@ namespace SvgPathProperties.UnitTests
                 for (var j = 0; j < paths[i].xValues.Length; j++)
                 {
                     var tangent = properties.GetTangentAtLength(
-                      (j * properties.GetTotalLength()) / (paths[i].xValues.Length - 1)
+                      (j * properties.Length) / (paths[i].xValues.Length - 1)
                     );
                     Assert.True(Helpers.InDelta(tangent.X, paths[i].xValues[j], 0.1));
                     Assert.True(Helpers.InDelta(tangent.Y, paths[i].yValues[j], 0.1));
                 }
 
-                properties.GetTangentAtLength(10000000).Should().BeEquivalentTo(properties.GetTangentAtLength(properties.GetTotalLength()));
+                properties.GetTangentAtLength(10000000).Should().BeEquivalentTo(properties.GetTangentAtLength(properties.Length));
                 properties.GetTangentAtLength(-1).Should().BeEquivalentTo(properties.GetTangentAtLength(0));
             }
         }

@@ -16,11 +16,14 @@ namespace SvgPathProperties
             _y0 = y0;
             _x1 = x1;
             _y1 = y1;
+            Length = Math.Sqrt(Math.Pow(_x0 - _x1, 2) + Math.Pow(_y0 - _y1, 2));
         }
+
+        public double Length { get; }
 
         public Point GetPointAtLength(double pos)
         {
-            var fraction = pos / Math.Sqrt(Math.Pow(_x0 - _x1, 2) + Math.Pow(_y0 - _y1, 2));
+            var fraction = pos / Length;
             fraction = Double.IsNaN(fraction) ? 1 : fraction;
             var newDeltaX = (_x1 - _x0) * fraction;
             var newDeltaY = (_y1 - _y0) * fraction;
@@ -48,7 +51,5 @@ namespace SvgPathProperties
             var module = Math.Sqrt((_x1 - _x0) * (_x1 - _x0) + (_y1 - _y0) * (_y1 - _y0));
             return new Point(x: (_x1 - _x0) / module, y: (_y1 - _y0) / module);
         }
-
-        public double GetTotalLength() => Math.Sqrt(Math.Pow(_x0 - _x1, 2) + Math.Pow(_y0 - _y1, 2));
     }
 }

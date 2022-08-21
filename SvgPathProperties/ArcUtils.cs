@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SvgPathProperties
 {
     // Credit: https://github.com/fontello/svgpath/blob/master/lib/a2c.js
-    public static class A2C
+    public static class ArcUtils
     {
-        public const double TAU = Math.PI * 2;
-
+        private const double Tau = Math.PI * 2;
 
         /* eslint-disable space-infix-ops */
 
@@ -17,7 +15,7 @@ namespace SvgPathProperties
         // Since we measure angle between radii of circular arcs,
         // we can use simplified math (without length normalization)
         //
-        private static double unit_vector_angle(double ux, double uy, double vx, double vy)
+        private static double UnitVectorAngle(double ux, double uy, double vx, double vy)
         {
             var sign = (ux * vy - uy * vx < 0) ? -1 : 1;
             var dot = ux * vx + uy * vy;
@@ -39,14 +37,13 @@ namespace SvgPathProperties
             return sign * Math.Acos(dot);
         }
 
-
         // Convert from endpoint to center parameterization,
         // see http://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
         //
         // Return [cx, cy, theta1, delta_theta]
         //
-        private static double[] get_arc_center(double x1, double y1, double x2, double y2, double fa, double fs,
-            double rx, double ry, double sin_phi, double cos_phi)
+        private static double[] GetArcCenter(double x1, double y1, double x2, double y2, double fa, double fs,
+            double rx, double ry, double sinPhi, double cosPhi)
         {
             // Step 1.
             //
@@ -54,20 +51,20 @@ namespace SvgPathProperties
             // points. After that, rotate it to line up ellipse axes with coordinate
             // axes.
             //
-            var x1p = cos_phi * (x1 - x2) / 2 + sin_phi * (y1 - y2) / 2;
-            var y1p = -sin_phi * (x1 - x2) / 2 + cos_phi * (y1 - y2) / 2;
+            var x1P = cosPhi * (x1 - x2) / 2 + sinPhi * (y1 - y2) / 2;
+            var y1P = -sinPhi * (x1 - x2) / 2 + cosPhi * (y1 - y2) / 2;
 
-            var rx_sq = rx * rx;
-            var ry_sq = ry * ry;
-            var x1p_sq = x1p * x1p;
-            var y1p_sq = y1p * y1p;
+            var rxSq = rx * rx;
+            var rySq = ry * ry;
+            var x1PSq = x1P * x1P;
+            var y1PSq = y1P * y1P;
 
             // Step 2.
             //
             // Compute coordinates of the centre of this ellipse (cx', cy')
             // in the new coordinate system.
             //
-            var radicant = (rx_sq * ry_sq) - (rx_sq * y1p_sq) - (ry_sq * x1p_sq);
+            var radicant = (rxSq * rySq) - (rxSq * y1PSq) - (rySq * x1PSq);
 
             if (radicant < 0)
             {
@@ -75,74 +72,74 @@ namespace SvgPathProperties
                 radicant = 0;
             }
 
-            radicant /= (rx_sq * y1p_sq) + (ry_sq * x1p_sq);
+            radicant /= (rxSq * y1PSq) + (rySq * x1PSq);
             radicant = Math.Sqrt(radicant) * (fa == fs ? -1 : 1);
 
-            var cxp = radicant * rx / ry * y1p;
-            var cyp = radicant * -ry / rx * x1p;
+            var cxp = radicant * rx / ry * y1P;
+            var cyp = radicant * -ry / rx * x1P;
 
             // Step 3.
             //
             // Transform back to get centre coordinates (cx, cy) in the original
             // coordinate system.
             //
-            var cx = cos_phi * cxp - sin_phi * cyp + (x1 + x2) / 2;
-            var cy = sin_phi * cxp + cos_phi * cyp + (y1 + y2) / 2;
+            var cx = cosPhi * cxp - sinPhi * cyp + (x1 + x2) / 2;
+            var cy = sinPhi * cxp + cosPhi * cyp + (y1 + y2) / 2;
 
             // Step 4.
             //
             // Compute angles (theta1, delta_theta).
             //
-            var v1x = (x1p - cxp) / rx;
-            var v1y = (y1p - cyp) / ry;
-            var v2x = (-x1p - cxp) / rx;
-            var v2y = (-y1p - cyp) / ry;
+            var v1X = (x1P - cxp) / rx;
+            var v1Y = (y1P - cyp) / ry;
+            var v2X = (-x1P - cxp) / rx;
+            var v2Y = (-y1P - cyp) / ry;
 
-            var theta1 = unit_vector_angle(1, 0, v1x, v1y);
-            var delta_theta = unit_vector_angle(v1x, v1y, v2x, v2y);
+            var theta1 = UnitVectorAngle(1, 0, v1X, v1Y);
+            var deltaTheta = UnitVectorAngle(v1X, v1Y, v2X, v2Y);
 
-            if (fs == 0 && delta_theta > 0)
+            if (fs == 0 && deltaTheta > 0)
             {
-                delta_theta -= TAU;
+                deltaTheta -= Tau;
             }
 
-            if (fs == 1 && delta_theta < 0)
+            if (fs == 1 && deltaTheta < 0)
             {
-                delta_theta += TAU;
+                deltaTheta += Tau;
             }
 
-            return new[] { cx, cy, theta1, delta_theta };
+            return new[] { cx, cy, theta1, deltaTheta };
         }
 
         //
         // Approximate one unit arc segment with bézier curves,
         // see http://math.stackexchange.com/questions/873224
         //
-        private static double[] approximate_unit_arc(double theta1, double delta_theta)
+        private static double[] ApproximateUnitArc(double theta1, double deltaTheta)
         {
-            var alpha = 4.0 / 3.0 * Math.Tan(delta_theta / 4.0);
+            var alpha = 4.0 / 3.0 * Math.Tan(deltaTheta / 4.0);
 
             var x1 = Math.Cos(theta1);
             var y1 = Math.Sin(theta1);
-            var x2 = Math.Cos(theta1 + delta_theta);
-            var y2 = Math.Sin(theta1 + delta_theta);
+            var x2 = Math.Cos(theta1 + deltaTheta);
+            var y2 = Math.Sin(theta1 + deltaTheta);
 
             return new[] { x1, y1, x1 - y1 * alpha, y1 + x1 * alpha, x2 + y2 * alpha, y2 - x2 * alpha, x2, y2 };
         }
 
-        public static List<double[]> a2c(double x1, double y1, double x2, double y2, double fa, double fs, double rx,
+        public static List<double[]> ToCurve(double x1, double y1, double x2, double y2, double fa, double fs, double rx,
             double ry, double phi)
         {
             var result = new List<double[]>();
-            var sin_phi = Math.Sin(phi * TAU / 360);
-            var cos_phi = Math.Cos(phi * TAU / 360);
+            var sinPhi = Math.Sin(phi * Tau / 360);
+            var cosPhi = Math.Cos(phi * Tau / 360);
 
             // Make sure radii are valid
             //
-            var x1p = cos_phi * (x1 - x2) / 2 + sin_phi * (y1 - y2) / 2;
-            var y1p = -sin_phi * (x1 - x2) / 2 + cos_phi * (y1 - y2) / 2;
+            var x1P = cosPhi * (x1 - x2) / 2 + sinPhi * (y1 - y2) / 2;
+            var y1P = -sinPhi * (x1 - x2) / 2 + cosPhi * (y1 - y2) / 2;
 
-            if (x1p == 0 && y1p == 0)
+            if (x1P == 0 && y1P == 0)
             {
                 // we're asked to draw line to itself
                 return result;
@@ -160,7 +157,7 @@ namespace SvgPathProperties
             rx = Math.Abs(rx);
             ry = Math.Abs(ry);
 
-            var lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
+            var lambda = (x1P * x1P) / (rx * rx) + (y1P * y1P) / (ry * ry);
             if (lambda > 1)
             {
                 rx *= Math.Sqrt(lambda);
@@ -170,21 +167,21 @@ namespace SvgPathProperties
 
             // Get center parameters (cx, cy, theta1, delta_theta)
             //
-            var cc = get_arc_center(x1, y1, x2, y2, fa, fs, rx, ry, sin_phi, cos_phi);
+            var cc = GetArcCenter(x1, y1, x2, y2, fa, fs, rx, ry, sinPhi, cosPhi);
 
             var theta1 = cc[2];
-            var delta_theta = cc[3];
+            var deltaTheta = cc[3];
 
             // Split an arc to multiple segments, so each segment
             // will be less than τ/4 (= 90°)
             //
-            var segments = Math.Max(Math.Ceiling(Math.Abs(delta_theta) / (TAU / 4)), 1);
-            delta_theta /= segments;
+            var segments = Math.Max(Math.Ceiling(Math.Abs(deltaTheta) / (Tau / 4)), 1);
+            deltaTheta /= segments;
 
             for (var i = 0; i < segments; i++)
             {
-                result.Add(approximate_unit_arc(theta1, delta_theta));
-                theta1 += delta_theta;
+                result.Add(ApproximateUnitArc(theta1, deltaTheta));
+                theta1 += deltaTheta;
             }
 
             // We have a bezier approximation of a unit circle,
@@ -202,8 +199,8 @@ namespace SvgPathProperties
                     y *= ry;
 
                     // rotate
-                    var xp = cos_phi * x - sin_phi * y;
-                    var yp = sin_phi * x + cos_phi * y;
+                    var xp = cosPhi * x - sinPhi * y;
+                    var yp = sinPhi * x + cosPhi * y;
 
                     // translate
                     curve[i + 0] = xp + cc[0];

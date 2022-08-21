@@ -12,8 +12,7 @@ namespace SvgPathProperties
 
         public double X { get; }
         public double Y { get; }
-
-        public double GetTotalLength() => 0.0;
+        public double Length => 0.0;
 
         public Point GetPointAtLength(double pos)
         {

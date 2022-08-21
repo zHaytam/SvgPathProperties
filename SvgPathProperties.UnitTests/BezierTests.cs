@@ -8,14 +8,14 @@ namespace SvgPathProperties.UnitTests
         public void TestingLengthQuadratic()
         {
             var curve = new BezierProperties(200, 300, 400, 50, 600, 300, null, null);
-            Assert.True(Helpers.InDelta(curve.GetTotalLength(), 487.77, 0.1));
+            Assert.True(Helpers.InDelta(curve.Length, 487.77, 0.1));
         }
 
         [Fact]
         public void TestLengthCubic()
         {
             var curve = new BezierProperties(200, 200, 275, 100, 575, 100, 500, 200);
-            Assert.True(Helpers.InDelta(curve.GetTotalLength(), 383.44, 0.1));
+            Assert.True(Helpers.InDelta(curve.Length, 383.44, 0.1));
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace SvgPathProperties.UnitTests
         public void TestingPr16Solution()
         {
             var curve = new BezierProperties(640.48, 1285.21, 642.39, 644.73, 642.39, 644.73, null, null);
-            var tangent = curve.GetTangentAtLength(curve.GetTotalLength() / 2);
+            var tangent = curve.GetTangentAtLength(curve.Length / 2);
             Assert.True(Helpers.InDelta(tangent.Y, 0, 1));
             Assert.True(Helpers.InDelta(tangent.X, 0, 1));
         }

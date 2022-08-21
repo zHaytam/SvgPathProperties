@@ -3,20 +3,6 @@ using System;
 
 namespace SvgPathProperties
 {
-    public struct PointOnEllipticalArc
-    {
-        public PointOnEllipticalArc(double x, double y, double ellipticalArcAngle)
-        {
-            X = x;
-            Y = y;
-            EllipticalArcAngle = ellipticalArcAngle;
-        }
-
-        public double X { get; }
-        public double Y { get; }
-        public double EllipticalArcAngle { get; }
-    }
-
     public class ArcProperties : IProperties
     {
         private readonly double _x0;
@@ -28,7 +14,6 @@ namespace SvgPathProperties
         private readonly bool _sweepFlag;
         private readonly double _x1;
         private readonly double _y1;
-        private readonly double _length;
 
         public ArcProperties(double x0, double y0, double rx, double ry, double xAxisRotate,
             bool largeArcFlag, bool sweepFlag, double x1, double y1)
@@ -43,12 +28,14 @@ namespace SvgPathProperties
             _x1 = x1;
             _y1 = y1;
 
-            _length = ApproximateArcLengthOfCurve(300, t =>
+            Length = ApproximateArcLengthOfCurve(300, t =>
             {
                 return PointOnEllipticalArc(new Point(x0, y0), rx, ry, xAxisRotate, largeArcFlag, sweepFlag,
                     new Point(x1, y1), t);
             });
         }
+
+        public double Length { get; }
 
         public Point GetPointAtLength(double fractionLength)
         {
@@ -56,13 +43,13 @@ namespace SvgPathProperties
             {
                 fractionLength = 0;
             }
-            else if (fractionLength > _length)
+            else if (fractionLength > Length)
             {
-                fractionLength = _length;
+                fractionLength = Length;
             }
 
             var position = PointOnEllipticalArc(new Point(x: _x0, y: _y0), _rx, _ry, _xAxisRotate,
-                _largeArcFlag, _sweepFlag, new Point(x: _x1, y: _y1), fractionLength / _length);
+                _largeArcFlag, _sweepFlag, new Point(x: _x1, y: _y1), fractionLength / Length);
 
             return new Point(x: position.X, y: position.Y);
         }
@@ -82,12 +69,12 @@ namespace SvgPathProperties
             {
                 fractionLength = 0;
             }
-            else if (fractionLength > _length)
+            else if (fractionLength > Length)
             {
-                fractionLength = _length;
+                fractionLength = Length;
             }
 
-            var point_dist = 0.05;
+            const double pointDist = 0.05;
             var p1 = GetPointAtLength(fractionLength);
             Point p2;
 
@@ -95,35 +82,28 @@ namespace SvgPathProperties
             {
                 fractionLength = 0;
             }
-            else if (fractionLength > _length)
+            else if (fractionLength > Length)
             {
-                fractionLength = _length;
+                fractionLength = Length;
             }
 
-            if (fractionLength < _length - point_dist)
+            if (fractionLength < Length - pointDist)
             {
-                p2 = GetPointAtLength(fractionLength + point_dist);
+                p2 = GetPointAtLength(fractionLength + pointDist);
             }
             else
             {
-                p2 = GetPointAtLength(fractionLength - point_dist);
+                p2 = GetPointAtLength(fractionLength - pointDist);
             }
 
             var xDist = p2.X - p1.X;
             var yDist = p2.Y - p1.Y;
             var dist = Math.Sqrt(xDist * xDist + yDist * yDist);
 
-            if (fractionLength < _length - point_dist)
-            {
-                return new Point(x: -xDist / dist, y: -yDist / dist);
-            }
-            else
-            {
-                return new Point(x: xDist / dist, y: yDist / dist);
-            }
+            return fractionLength < Length - pointDist
+                ? new Point(x: -xDist / dist, y: -yDist / dist)
+                : new Point(x: xDist / dist, y: yDist / dist);
         }
-
-        public double GetTotalLength() => _length;
 
         private static double Mod(double x, double m) => ((x % m) + m) % m;
 
@@ -152,13 +132,13 @@ namespace SvgPathProperties
             var xAxisRotationRadians = ToRadians(xAxisRotation);
             // If the endpoints are identical, then this is equivalent to omitting the elliptical arc segment entirely.
             if (p0.X == p1.X && p0.Y == p1.Y)
-                return new Point(x: p0.X, y: p0.Y/*, ellipticalArcAngle: 0*/); // Check if angle is correct
+                return new Point(x: p0.X, y: p0.Y /*, ellipticalArcAngle: 0*/); // Check if angle is correct
 
             // If rx = 0 or ry = 0 then this arc is treated as a straight line segment joining the endpoints.
             if (rx == 0 || ry == 0)
             {
                 //return this.pointOnLine(p0, p1, t);
-                return new Point(x: 0, y: 0/*, ellipticalArcAngle: 0*/); // Check if angle is correct
+                return new Point(x: 0, y: 0 /*, ellipticalArcAngle: 0*/); // Check if angle is correct
             }
 
             // Following "Conversion from endpoint to center parameterization"
@@ -170,7 +150,8 @@ namespace SvgPathProperties
             var transformedPoint = new Point(Math.Cos(xAxisRotationRadians) * dx + Math.Sin(xAxisRotationRadians) * dy,
                 -Math.Sin(xAxisRotationRadians) * dx + Math.Cos(xAxisRotationRadians) * dy);
             // Ensure radii are large enough
-            var radiiCheck = Math.Pow(transformedPoint.X, 2) / Math.Pow(rx, 2) + Math.Pow(transformedPoint.Y, 2) / Math.Pow(ry, 2);
+            var radiiCheck = Math.Pow(transformedPoint.X, 2) / Math.Pow(rx, 2) +
+                             Math.Pow(transformedPoint.Y, 2) / Math.Pow(ry, 2);
             if (radiiCheck > 1)
             {
                 rx = Math.Sqrt(radiiCheck) * rx;
@@ -179,12 +160,12 @@ namespace SvgPathProperties
 
             // Step #2: Compute transformedCenter
             var cSquareNumerator =
-              Math.Pow(rx, 2) * Math.Pow(ry, 2) -
-              Math.Pow(rx, 2) * Math.Pow(transformedPoint.Y, 2) -
-              Math.Pow(ry, 2) * Math.Pow(transformedPoint.X, 2);
+                Math.Pow(rx, 2) * Math.Pow(ry, 2) -
+                Math.Pow(rx, 2) * Math.Pow(transformedPoint.Y, 2) -
+                Math.Pow(ry, 2) * Math.Pow(transformedPoint.X, 2);
             var cSquareRootDenom =
-              Math.Pow(rx, 2) * Math.Pow(transformedPoint.Y, 2) +
-              Math.Pow(ry, 2) * Math.Pow(transformedPoint.X, 2);
+                Math.Pow(rx, 2) * Math.Pow(transformedPoint.Y, 2) +
+                Math.Pow(ry, 2) * Math.Pow(transformedPoint.X, 2);
             var cRadicand = cSquareNumerator / cSquareRootDenom;
             // Make sure this never drops below zero because of precision
             cRadicand = cRadicand < 0 ? 0 : cRadicand;
@@ -195,13 +176,13 @@ namespace SvgPathProperties
             // Step #3: Compute center
             var center = new Point(
                 x:
-                    Math.Cos(xAxisRotationRadians) * transformedCenter.X -
-                    Math.Sin(xAxisRotationRadians) * transformedCenter.Y +
-                    (p0.X + p1.X) / 2,
+                Math.Cos(xAxisRotationRadians) * transformedCenter.X -
+                Math.Sin(xAxisRotationRadians) * transformedCenter.Y +
+                (p0.X + p1.X) / 2,
                 y:
-                    Math.Sin(xAxisRotationRadians) * transformedCenter.X +
-                    Math.Cos(xAxisRotationRadians) * transformedCenter.Y +
-                    (p0.Y + p1.Y) / 2
+                Math.Sin(xAxisRotationRadians) * transformedCenter.X +
+                Math.Cos(xAxisRotationRadians) * transformedCenter.Y +
+                (p0.Y + p1.Y) / 2
             );
 
             // Step #4: Compute start/sweep angles
@@ -223,6 +204,7 @@ namespace SvgPathProperties
             {
                 sweepAngle += 2 * Math.PI;
             }
+
             // We use % instead of `mod(..)` because we want it to be -360deg to 360deg(but actually in radians)
             sweepAngle %= 2 * Math.PI;
 
@@ -233,18 +215,18 @@ namespace SvgPathProperties
 
             return new Point(
                 x:
-                    Math.Cos(xAxisRotationRadians) * ellipseComponentX -
-                    Math.Sin(xAxisRotationRadians) * ellipseComponentY +
-                    center.X,
+                Math.Cos(xAxisRotationRadians) * ellipseComponentX -
+                Math.Sin(xAxisRotationRadians) * ellipseComponentY +
+                center.X,
                 y:
-                    Math.Sin(xAxisRotationRadians) * ellipseComponentX +
-                    Math.Cos(xAxisRotationRadians) * ellipseComponentY +
-                    center.Y/*,
+                Math.Sin(xAxisRotationRadians) * ellipseComponentX +
+                Math.Cos(xAxisRotationRadians) * ellipseComponentY +
+                center.Y /*,
                 ellipticalArcAngle: angle*/
             );
         }
 
-        public static double ApproximateArcLengthOfCurve(double? resolution, Func<double, Point> pointOnCurveFunc)
+        private static double ApproximateArcLengthOfCurve(double? resolution, Func<double, Point> pointOnCurveFunc)
         {
             // Resolution is the number of segments we use
             resolution = resolution ?? 500;

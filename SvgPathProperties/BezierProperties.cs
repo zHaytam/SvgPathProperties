@@ -12,7 +12,6 @@ namespace SvgPathProperties
         private readonly Func<double[], double[], double, double> _getArcLength;
         private readonly Func<double[], double[], double, Point> _getPoint;
         private readonly Func<double[], double[], double, Point> _getDerivative;
-        private double _length;
 
         public BezierProperties(double ax, double ay, double bx, double by, double cx, double cy,
             double? dx, double? dy)
@@ -36,14 +35,16 @@ namespace SvgPathProperties
                 _d = new Point(0, 0);
             }
 
-            _length = _getArcLength(new[] { _a.X, _b.X, _c.X, _d.X }, new[] { _a.Y, _b.Y, _c.Y, _d.Y }, 1);
+            Length = _getArcLength(new[] { _a.X, _b.X, _c.X, _d.X }, new[] { _a.Y, _b.Y, _c.Y, _d.Y }, 1);
         }
+
+        public double Length { get; }
 
         public Point GetPointAtLength(double length)
         {
             var xs = new[] { _a.X, _b.X, _c.X, _d.X };
             var xy = new[] { _a.Y, _b.Y, _c.Y, _d.Y };
-            var t = BezierFunctions.T2length(length, _length, i => _getArcLength(xs, xy, i));
+            var t = BezierFunctions.T2length(length, Length, i => _getArcLength(xs, xy, i));
             return _getPoint(xs, xy, t);
         }
 
@@ -51,7 +52,7 @@ namespace SvgPathProperties
         {
             var xs = new[] { _a.X, _b.X, _c.X, _d.X };
             var xy = new[] { _a.Y, _b.Y, _c.Y, _d.Y };
-            var t = BezierFunctions.T2length(length, _length, i => _getArcLength(xs, xy, i));
+            var t = BezierFunctions.T2length(length, Length, i => _getArcLength(xs, xy, i));
 
             var derivative = _getDerivative(xs, xy, t);
             var mdl = Math.Sqrt(derivative.X * derivative.X + derivative.Y * derivative.Y);
@@ -135,7 +136,7 @@ namespace SvgPathProperties
         {
             var xs = new[] { _a.X, _b.X, _c.X, _d.X };
             var xy = new[] { _a.Y, _b.Y, _c.Y, _d.Y };
-            var t = BezierFunctions.T2length(length, _length, i => _getArcLength(xs, xy, i));
+            var t = BezierFunctions.T2length(length, Length, i => _getArcLength(xs, xy, i));
 
             var derivative = _getDerivative(xs, xy, t);
             var mdl = Math.Sqrt(derivative.X * derivative.X + derivative.Y * derivative.Y);
@@ -148,8 +149,6 @@ namespace SvgPathProperties
                 return new Point(0, 0);
             }
         }
-
-        public double GetTotalLength() => _length;
 
         public Point GetC() => _c;
 

@@ -33,12 +33,12 @@ namespace SvgPathProperties.UnitTests
             var properties = new SVGPathProperties(path);
             for (var j = 0; j < xValues.Length; j++)
             {
-                var position = properties.GetPointAtLength((j * properties.GetTotalLength()) / (xValues.Length - 1));
+                var position = properties.GetPointAtLength((j * properties.Length) / (xValues.Length - 1));
                 Assert.True(Helpers.InDelta(position.X, xValues[j], 0.1));
                 Assert.True(Helpers.InDelta(position.Y, yValues[j], 0.1));
             }
 
-            properties.GetPointAtLength(10000000).Should().BeEquivalentTo(properties.GetPointAtLength(properties.GetTotalLength()));
+            properties.GetPointAtLength(10000000).Should().BeEquivalentTo(properties.GetPointAtLength(properties.Length));
             properties.GetPointAtLength(-1).Should().BeEquivalentTo(properties.GetPointAtLength(0));
         }
 
@@ -63,12 +63,12 @@ namespace SvgPathProperties.UnitTests
             var properties = new SVGPathProperties(path);
             for (var j = 0; j < xValues.Length; j++)
             {
-                var position = properties.GetPointAtLength((j * properties.GetTotalLength()) / (xValues.Length - 1));
+                var position = properties.GetPointAtLength((j * properties.Length) / (xValues.Length - 1));
                 Assert.True(Helpers.InDelta(position.X, xValues[j], 1));
                 Assert.True(Helpers.InDelta(position.Y, yValues[j], 1));
             }
 
-            properties.GetPointAtLength(10000000).Should().BeEquivalentTo(properties.GetPointAtLength(properties.GetTotalLength()));
+            properties.GetPointAtLength(10000000).Should().BeEquivalentTo(properties.GetPointAtLength(properties.Length));
             properties.GetPointAtLength(-1).Should().BeEquivalentTo(properties.GetPointAtLength(0));
         }
 
@@ -89,7 +89,7 @@ namespace SvgPathProperties.UnitTests
         public void TestingGetPointAtLengthWithStraighLineBezierCurve()
         {
             var pathData = new SVGPathProperties("M500,300Q425,325 350,350");
-            var pathLen = pathData.GetTotalLength();
+            var pathLen = pathData.Length;
             Assert.True(Helpers.InDelta(pathLen, 158.11, 0.1)); //Gave undefined
 
             var pos = pathData.GetPointAtLength(0);
@@ -124,11 +124,11 @@ namespace SvgPathProperties.UnitTests
         {
             var properties = new SVGPathProperties("M60,20Q60,20 150,20");
             properties.GetPointAtLength(2).Should().BeEquivalentTo(new Point(62, 20));
-            properties.GetTotalLength().Should().Be(90);
+            properties.Length.Should().Be(90);
 
             properties = new SVGPathProperties("M60,20q0,0 90,0");
             properties.GetPointAtLength(2).Should().BeEquivalentTo(new Point(62, 20));
-            properties.GetTotalLength().Should().Be(90);
+            properties.Length.Should().Be(90);
         }
 
         [Fact]
