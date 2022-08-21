@@ -27,7 +27,7 @@ namespace SvgPathProperties
                 {
                     cur = new[] { parsed[i].Item2[0], parsed[i].Item2[1] };
                     ringStart = (cur[0], cur[1]);
-                    _functions.Add(null);
+                    _functions.Add(new MoveProperties(cur[0], cur[1]));
                     if (i == 0)
                     {
                         _initialPoint = new Point(x: parsed[i].Item2[0], y: parsed[i].Item2[1]);
@@ -37,7 +37,7 @@ namespace SvgPathProperties
                 {
                     cur = new double[] { parsed[i].Item2[0] + cur[0], parsed[i].Item2[1] + cur[1] };
                     ringStart = (cur[0], cur[1]);
-                    _functions.Add(null);
+                    _functions.Add(new MoveProperties(cur[0], cur[1]));
                 }
                 // lineTo
                 else if (parsed[i].Item1 == 'L')
@@ -329,7 +329,7 @@ namespace SvgPathProperties
                     }
 
                     prevPoint = (2 * cur[0] - prevPoint.Item1, 2 * cur[1] - prevPoint.Item2);
-                    cur = new double[] { parsed[i].Item2[0] + cur[0], parsed[i].Item2[1] + cur[0] };
+                    cur = new double[] { parsed[i].Item2[0] + cur[0], parsed[i].Item2[1] + cur[1] };
                 }
                 // Arcs
                 else if (parsed[i].Item1 == 'A')
