@@ -34,6 +34,15 @@ namespace SvgPathProperties
             return new PointProperties(x: point.X, y: point.Y, tangentX: tangent.X, tangentY: tangent.Y);
         }
 
+        public (Point, Point) GetBBox()
+        {
+            var minX = Math.Min(_x0, _x1);
+            var minY = Math.Min(_y0, _y1);
+            var maxX = Math.Max(_x0, _x1);
+            var maxY = Math.Max(_y0, _y1);
+            return (new Point(minX, minY), new Point(maxX, maxY));
+        }
+
         public Point GetTangentAtLength(double pos)
         {
             var module = Math.Sqrt((_x1 - _x0) * (_x1 - _x0) + (_y1 - _y0) * (_y1 - _y0));

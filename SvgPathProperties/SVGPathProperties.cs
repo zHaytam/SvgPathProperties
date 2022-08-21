@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace SvgPathProperties
 {
@@ -12,7 +13,7 @@ namespace SvgPathProperties
         private readonly List<IProperties> _functions = new List<IProperties>();
         private readonly Point? _initialPoint;
 
-        public SVGPathProperties(string path)
+        public SVGPathProperties(string path, bool unarc = false)
         {
             var parsed = Parser.Parse(path);
             var cur = new double[2];
@@ -41,14 +42,16 @@ namespace SvgPathProperties
                 // lineTo
                 else if (parsed[i].Item1 == 'L')
                 {
-                    _length += Math.Sqrt(Math.Pow(cur[0] - parsed[i].Item2[0], 2) + Math.Pow(cur[1] - parsed[i].Item2[1], 2));
+                    _length += Math.Sqrt(Math.Pow(cur[0] - parsed[i].Item2[0], 2) +
+                                         Math.Pow(cur[1] - parsed[i].Item2[1], 2));
                     _functions.Add(new LinearProperties(cur[0], parsed[i].Item2[0], cur[1], parsed[i].Item2[1]));
                     cur = new double[] { parsed[i].Item2[0], parsed[i].Item2[1] };
                 }
                 else if (parsed[i].Item1 == 'l')
                 {
                     _length += Math.Sqrt(Math.Pow(parsed[i].Item2[0], 2) + Math.Pow(parsed[i].Item2[1], 2));
-                    _functions.Add(new LinearProperties(cur[0], parsed[i].Item2[0] + cur[0], cur[1], parsed[i].Item2[1] + cur[1]));
+                    _functions.Add(new LinearProperties(cur[0], parsed[i].Item2[0] + cur[0], cur[1],
+                        parsed[i].Item2[1] + cur[1]));
                     cur = new double[] { parsed[i].Item2[0] + cur[0], parsed[i].Item2[1] + cur[1] };
                 }
                 else if (parsed[i].Item1 == 'H')
@@ -81,19 +84,19 @@ namespace SvgPathProperties
                     _length += Math.Sqrt(Math.Pow(ringStart.Item1 - cur[0], 2) + Math.Pow(ringStart.Item2 - cur[1], 2));
                     _functions.Add(new LinearProperties(cur[0], ringStart.Item1, cur[1], ringStart.Item2));
                     cur = new double[] { ringStart.Item1, ringStart.Item2 };
-                    //Cubic Bezier curves
                 }
+                // Cubic Bezier curves
                 else if (parsed[i].Item1 == 'C')
                 {
                     curve = new BezierProperties(
-                      cur[0],
-                      cur[1],
-                      parsed[i].Item2[0],
-                      parsed[i].Item2[1],
-                      parsed[i].Item2[2],
-                      parsed[i].Item2[3],
-                      parsed[i].Item2[4],
-                      parsed[i].Item2[5]
+                        cur[0],
+                        cur[1],
+                        parsed[i].Item2[0],
+                        parsed[i].Item2[1],
+                        parsed[i].Item2[2],
+                        parsed[i].Item2[3],
+                        parsed[i].Item2[4],
+                        parsed[i].Item2[5]
                     );
                     _length += curve.GetTotalLength();
                     cur = new double[] { parsed[i].Item2[4], parsed[i].Item2[5] };
@@ -102,14 +105,14 @@ namespace SvgPathProperties
                 else if (parsed[i].Item1 == 'c')
                 {
                     curve = new BezierProperties(
-                      cur[0],
-                      cur[1],
-                      cur[0] + parsed[i].Item2[0],
-                      cur[1] + parsed[i].Item2[1],
-                      cur[0] + parsed[i].Item2[2],
-                      cur[1] + parsed[i].Item2[3],
-                      cur[0] + parsed[i].Item2[4],
-                      cur[1] + parsed[i].Item2[5]
+                        cur[0],
+                        cur[1],
+                        cur[0] + parsed[i].Item2[0],
+                        cur[1] + parsed[i].Item2[1],
+                        cur[0] + parsed[i].Item2[2],
+                        cur[1] + parsed[i].Item2[3],
+                        cur[0] + parsed[i].Item2[4],
+                        cur[1] + parsed[i].Item2[5]
                     );
                     if (curve.GetTotalLength() > 0)
                     {
@@ -130,30 +133,31 @@ namespace SvgPathProperties
                         {
                             var c = curve.GetC();
                             curve = new BezierProperties(
-                              cur[0],
-                              cur[1],
-                              2 * cur[0] - c.X,
-                              2 * cur[1] - c.Y,
-                              parsed[i].Item2[0],
-                              parsed[i].Item2[1],
-                              parsed[i].Item2[2],
-                              parsed[i].Item2[3]
+                                cur[0],
+                                cur[1],
+                                2 * cur[0] - c.X,
+                                2 * cur[1] - c.Y,
+                                parsed[i].Item2[0],
+                                parsed[i].Item2[1],
+                                parsed[i].Item2[2],
+                                parsed[i].Item2[3]
                             );
                         }
                     }
                     else
                     {
                         curve = new BezierProperties(
-                          cur[0],
-                          cur[1],
-                          cur[0],
-                          cur[1],
-                          parsed[i].Item2[0],
-                          parsed[i].Item2[1],
-                          parsed[i].Item2[2],
-                          parsed[i].Item2[3]
+                            cur[0],
+                            cur[1],
+                            cur[0],
+                            cur[1],
+                            parsed[i].Item2[0],
+                            parsed[i].Item2[1],
+                            parsed[i].Item2[2],
+                            parsed[i].Item2[3]
                         );
                     }
+
                     if (curve != null)
                     {
                         _length += curve.GetTotalLength();
@@ -171,14 +175,14 @@ namespace SvgPathProperties
                             var c = curve.GetC();
                             var d = curve.GetD();
                             curve = new BezierProperties(
-                              cur[0],
-                              cur[1],
-                              cur[0] + d.X - c.X,
-                              cur[1] + d.Y - c.Y,
-                              cur[0] + parsed[i].Item2[0],
-                              cur[1] + parsed[i].Item2[1],
-                              cur[0] + parsed[i].Item2[2],
-                              cur[1] + parsed[i].Item2[3]
+                                cur[0],
+                                cur[1],
+                                cur[0] + d.X - c.X,
+                                cur[1] + d.Y - c.Y,
+                                cur[0] + parsed[i].Item2[0],
+                                cur[1] + parsed[i].Item2[1],
+                                cur[0] + parsed[i].Item2[2],
+                                cur[1] + parsed[i].Item2[3]
                             );
                         }
                     }
@@ -195,6 +199,7 @@ namespace SvgPathProperties
                             cur[1] + parsed[i].Item2[3]
                         );
                     }
+
                     if (curve != null)
                     {
                         _length += curve.GetTotalLength();
@@ -202,7 +207,7 @@ namespace SvgPathProperties
                         _functions.Add(curve);
                     }
                 }
-                //Quadratic Bezier curves
+                // Quadratic Bezier curves
                 else if (parsed[i].Item1 == 'Q')
                 {
                     if (cur[0] == parsed[i].Item2[0] && cur[1] == parsed[i].Item2[1])
@@ -219,14 +224,14 @@ namespace SvgPathProperties
                     else
                     {
                         curve = new BezierProperties(
-                          cur[0],
-                          cur[1],
-                          parsed[i].Item2[0],
-                          parsed[i].Item2[1],
-                          parsed[i].Item2[2],
-                          parsed[i].Item2[3],
-                          null,
-                          null
+                            cur[0],
+                            cur[1],
+                            parsed[i].Item2[0],
+                            parsed[i].Item2[1],
+                            parsed[i].Item2[2],
+                            parsed[i].Item2[3],
+                            null,
+                            null
                         );
                         _length += curve.GetTotalLength();
                         _functions.Add(curve);
@@ -240,14 +245,14 @@ namespace SvgPathProperties
                     if (!(parsed[i].Item2[0] == 0 && parsed[i].Item2[1] == 0))
                     {
                         curve = new BezierProperties(
-                          cur[0],
-                          cur[1],
-                          cur[0] + parsed[i].Item2[0],
-                          cur[1] + parsed[i].Item2[1],
-                          cur[0] + parsed[i].Item2[2],
-                          cur[1] + parsed[i].Item2[3],
-                          null,
-                          null
+                            cur[0],
+                            cur[1],
+                            cur[0] + parsed[i].Item2[0],
+                            cur[1] + parsed[i].Item2[1],
+                            cur[0] + parsed[i].Item2[2],
+                            cur[1] + parsed[i].Item2[3],
+                            null,
+                            null
                         );
                         _length += curve.GetTotalLength();
                         _functions.Add(curve);
@@ -255,10 +260,10 @@ namespace SvgPathProperties
                     else
                     {
                         var linearCurve = new LinearProperties(
-                          cur[0] + parsed[i].Item2[0],
-                          cur[0] + parsed[i].Item2[2],
-                          cur[1] + parsed[i].Item2[1],
-                          cur[1] + parsed[i].Item2[3]
+                            cur[0] + parsed[i].Item2[0],
+                            cur[0] + parsed[i].Item2[2],
+                            cur[1] + parsed[i].Item2[1],
+                            cur[1] + parsed[i].Item2[3]
                         );
                         _length += linearCurve.GetTotalLength();
                         _functions.Add(linearCurve);
@@ -272,14 +277,14 @@ namespace SvgPathProperties
                     if (i > 0 && new char[] { 'Q', 'q', 'T', 't' }.Contains(parsed[i - 1].Item1))
                     {
                         curve = new BezierProperties(
-                          cur[0],
-                          cur[1],
-                          2 * cur[0] - prevPoint.Item1,
-                          2 * cur[1] - prevPoint.Item2,
-                          parsed[i].Item2[0],
-                          parsed[i].Item2[1],
-                          null,
-                          null
+                            cur[0],
+                            cur[1],
+                            2 * cur[0] - prevPoint.Item1,
+                            2 * cur[1] - prevPoint.Item2,
+                            parsed[i].Item2[0],
+                            parsed[i].Item2[1],
+                            null,
+                            null
                         );
                         _functions.Add(curve);
                         _length += curve.GetTotalLength();
@@ -299,14 +304,14 @@ namespace SvgPathProperties
                     if (i > 0 && new char[] { 'Q', 'q', 'T', 't' }.Contains(parsed[i - 1].Item1))
                     {
                         curve = new BezierProperties(
-                          cur[0],
-                          cur[1],
-                          2 * cur[0] - prevPoint.Item1,
-                          2 * cur[1] - prevPoint.Item2,
-                          cur[0] + parsed[i].Item2[0],
-                          cur[1] + parsed[i].Item2[1],
-                          null,
-                          null
+                            cur[0],
+                            cur[1],
+                            2 * cur[0] - prevPoint.Item1,
+                            2 * cur[1] - prevPoint.Item2,
+                            cur[0] + parsed[i].Item2[0],
+                            cur[1] + parsed[i].Item2[1],
+                            null,
+                            null
                         );
                         _length += curve.GetTotalLength();
                         _functions.Add(curve);
@@ -314,10 +319,10 @@ namespace SvgPathProperties
                     else
                     {
                         var linearCurve = new LinearProperties(
-                          cur[0],
-                          cur[0] + parsed[i].Item2[0],
-                          cur[1],
-                          cur[1] + parsed[i].Item2[1]
+                            cur[0],
+                            cur[0] + parsed[i].Item2[0],
+                            cur[1],
+                            cur[1] + parsed[i].Item2[1]
                         );
                         _length += linearCurve.GetTotalLength();
                         _functions.Add(linearCurve);
@@ -326,46 +331,102 @@ namespace SvgPathProperties
                     prevPoint = (2 * cur[0] - prevPoint.Item1, 2 * cur[1] - prevPoint.Item2);
                     cur = new double[] { parsed[i].Item2[0] + cur[0], parsed[i].Item2[1] + cur[0] };
                 }
+                // Arcs
                 else if (parsed[i].Item1 == 'A')
                 {
-                    var arcCurve = new ArcProperties(
-                      cur[0],
-                      cur[1],
-                      parsed[i].Item2[0],
-                      parsed[i].Item2[1],
-                      parsed[i].Item2[2],
-                      parsed[i].Item2[3] == 1,
-                      parsed[i].Item2[4] == 1,
-                      parsed[i].Item2[5],
-                      parsed[i].Item2[6]
-                    );
+                    if (unarc)
+                    {
+                        var newSegments = A2C.a2c(cur[0], cur[1], parsed[i].Item2[5], parsed[i].Item2[6],
+                            parsed[i].Item2[3], parsed[i].Item2[4], parsed[i].Item2[0], parsed[i].Item2[1],
+                            parsed[i].Item2[2]);
+                        if (newSegments.Count == 0)
+                        {
+                            var l = new LinearProperties(cur[0], cur[1], parsed[i].Item2[5], parsed[i].Item2[6]);
+                            _length += l.GetTotalLength();
+                            _functions.Add(l);
+                        }
+                        else
+                        {
+                            foreach (var s in newSegments)
+                            {
+                                var c = new BezierProperties(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
+                                _length += c.GetTotalLength();
+                                _functions.Add(c);
+                            }
+                        }
 
-                    _length += arcCurve.GetTotalLength();
-                    cur = new double[] { parsed[i].Item2[5], parsed[i].Item2[6] };
-                    _functions.Add(arcCurve);
+                        cur = new[] { parsed[i].Item2[5], parsed[i].Item2[6] };
+                    }
+                    else
+                    {
+                        var arcCurve = new ArcProperties(
+                            cur[0],
+                            cur[1],
+                            parsed[i].Item2[0],
+                            parsed[i].Item2[1],
+                            parsed[i].Item2[2],
+                            parsed[i].Item2[3] == 1,
+                            parsed[i].Item2[4] == 1,
+                            parsed[i].Item2[5],
+                            parsed[i].Item2[6]
+                        );
+
+                        _length += arcCurve.GetTotalLength();
+                        cur = new [] { parsed[i].Item2[5], parsed[i].Item2[6] };
+                        _functions.Add(arcCurve);
+                    }
                 }
                 else if (parsed[i].Item1 == 'a')
                 {
-                    var arcCurve = new ArcProperties(
-                      cur[0],
-                      cur[1],
-                      parsed[i].Item2[0],
-                      parsed[i].Item2[1],
-                      parsed[i].Item2[2],
-                      parsed[i].Item2[3] == 1,
-                      parsed[i].Item2[4] == 1,
-                      cur[0] + parsed[i].Item2[5],
-                      cur[1] + parsed[i].Item2[6]
-                    );
+                    if (unarc)
+                    {
+                        var newSegments = A2C.a2c(cur[0], cur[1], cur[0] + parsed[i].Item2[5],
+                            cur[1] + parsed[i].Item2[6], parsed[i].Item2[3], parsed[i].Item2[4], parsed[i].Item2[0],
+                            parsed[i].Item2[1], parsed[i].Item2[2]);
+                        
+                        if (newSegments.Count == 0)
+                        {
+                            var l = new LinearProperties(cur[0], cur[1], parsed[i].Item2[5], parsed[i].Item2[6]);
+                            _length += l.GetTotalLength();
+                            _functions.Add(l);
+                        }
+                        else
+                        {
+                            foreach (var s in newSegments)
+                            {
+                                var c = new BezierProperties(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
+                                _length += c.GetTotalLength();
+                                _functions.Add(c);
+                            }
+                        }
 
-                    _length += arcCurve.GetTotalLength();
-                    cur = new double[] { cur[0] + parsed[i].Item2[5], cur[1] + parsed[i].Item2[6] };
-                    _functions.Add(arcCurve);
+                        cur = new[] { cur[0] + parsed[i].Item2[5], cur[1] + parsed[i].Item2[6] };
+                    }
+                    else
+                    {
+                        var arcCurve = new ArcProperties(
+                            cur[0],
+                            cur[1],
+                            parsed[i].Item2[0],
+                            parsed[i].Item2[1],
+                            parsed[i].Item2[2],
+                            parsed[i].Item2[3] == 1,
+                            parsed[i].Item2[4] == 1,
+                            cur[0] + parsed[i].Item2[5],
+                            cur[1] + parsed[i].Item2[6]
+                        );
+
+                        _length += arcCurve.GetTotalLength();
+                        cur = new[] { cur[0] + parsed[i].Item2[5], cur[1] + parsed[i].Item2[6] };
+                        _functions.Add(arcCurve);
+                    }
                 }
 
                 _partialLengths.Add(_length);
             }
         }
+
+        public IReadOnlyList<IProperties> Parts => _functions;
 
         public (int i, double fraction) GetPartAtLength(double fractionLength)
         {
@@ -383,6 +444,7 @@ namespace SvgPathProperties
             {
                 i--;
             }
+
             i++;
 
             return (i, fractionLength - _partialLengths[i - 1]);
@@ -415,10 +477,32 @@ namespace SvgPathProperties
             }
             else if (_initialPoint != null)
             {
-                return new PointProperties(x: _initialPoint.Value.X, y: _initialPoint.Value.Y, tangentX: 0, tangentY: 0);
+                return new PointProperties(x: _initialPoint.Value.X, y: _initialPoint.Value.Y, tangentX: 0,
+                    tangentY: 0);
             }
 
             throw new Exception("Wrong function at this part.");
+        }
+
+        public (Point, Point) GetBBox()
+        {
+            var minX = double.PositiveInfinity;
+            var minY = double.PositiveInfinity;
+            var maxX = double.NegativeInfinity;
+            var maxY = double.NegativeInfinity;
+
+            foreach (var part in _functions)
+            {
+                if (part == null) continue;
+
+                (var topLeft, var bottomRight) = part.GetBBox();
+                minX = Math.Min(minX, topLeft.X);
+                minY = Math.Min(minY, topLeft.Y);
+                maxX = Math.Max(maxX, bottomRight.X);
+                maxY = Math.Max(maxY, bottomRight.Y);
+            }
+
+            return (new Point(minX, minY), new Point(maxX, maxY));
         }
 
         public Point GetTangentAtLength(double fractionLength)

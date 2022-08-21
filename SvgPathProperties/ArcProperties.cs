@@ -74,6 +74,11 @@ namespace SvgPathProperties
             return new PointProperties(x: point.X, y: point.Y, tangentX: tangent.X, tangentY: tangent.Y);
         }
 
+        public (Point, Point) GetBBox()
+        {
+            throw new NotImplementedException();
+        }
+
         public Point GetTangentAtLength(double fractionLength)
         {
             if (fractionLength < 0)
