@@ -3,38 +3,35 @@ using System;
 
 namespace SvgPathProperties
 {
-    public class ArcProperties : IProperties
+    public class ArcCommand : ICommand
     {
-        private readonly double _x0;
-        private readonly double _y0;
-        private readonly double _rx;
-        private readonly double _ry;
-        private readonly double _xAxisRotate;
-        private readonly bool _largeArcFlag;
-        private readonly bool _sweepFlag;
-        private readonly double _x1;
-        private readonly double _y1;
-
-        public ArcProperties(double x0, double y0, double rx, double ry, double xAxisRotate,
-            bool largeArcFlag, bool sweepFlag, double x1, double y1)
+        public ArcCommand(double x0, double y0, double rx, double ry, double xAxisRotate, bool largeArcFlag, bool sweepFlag, double x1, double y1)
         {
-            _x0 = x0;
-            _y0 = y0;
-            _rx = rx;
-            _ry = ry;
-            _xAxisRotate = xAxisRotate;
-            _largeArcFlag = largeArcFlag;
-            _sweepFlag = sweepFlag;
-            _x1 = x1;
-            _y1 = y1;
+            FromX = x0;
+            FromY = y0;
+            Rx = rx;
+            Ry = ry;
+            XAxisRotate = xAxisRotate;
+            LargeArcFlag = largeArcFlag;
+            SweepFlag = sweepFlag;
+            ToX = x1;
+            ToY = y1;
 
             Length = ApproximateArcLengthOfCurve(300, t =>
             {
-                return PointOnEllipticalArc(new Point(x0, y0), rx, ry, xAxisRotate, largeArcFlag, sweepFlag,
-                    new Point(x1, y1), t);
+                return PointOnEllipticalArc(new Point(x0, y0), rx, ry, xAxisRotate, largeArcFlag, sweepFlag, new Point(x1, y1), t);
             });
         }
 
+        public double FromX { get; }
+        public double FromY { get; }
+        public double Rx { get; }
+        public double Ry { get; }
+        public double XAxisRotate { get; }
+        public bool LargeArcFlag { get; }
+        public bool SweepFlag { get; }
+        public double ToX { get; }
+        public double ToY { get; }
         public double Length { get; }
 
         public Point GetPointAtLength(double fractionLength)
@@ -48,8 +45,8 @@ namespace SvgPathProperties
                 fractionLength = Length;
             }
 
-            var position = PointOnEllipticalArc(new Point(x: _x0, y: _y0), _rx, _ry, _xAxisRotate,
-                _largeArcFlag, _sweepFlag, new Point(x: _x1, y: _y1), fractionLength / Length);
+            var position = PointOnEllipticalArc(new Point(x: FromX, y: FromY), Rx, Ry, XAxisRotate,
+                LargeArcFlag, SweepFlag, new Point(x: ToX, y: ToY), fractionLength / Length);
 
             return new Point(x: position.X, y: position.Y);
         }

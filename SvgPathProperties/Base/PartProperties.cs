@@ -5,9 +5,9 @@
         public Point Start { get; }
         public Point End { get; }
         public double Length { get; }
-        public IProperties Properties { get; }
+        public ICommand Properties { get; }
 
-        public PartProperties(Point start, Point end, double length, IProperties properties)
+        public PartProperties(Point start, Point end, double length, ICommand properties)
         {
             Start = start;
             End = end;

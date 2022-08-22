@@ -78,7 +78,7 @@ namespace SvgPathProperties.UnitTests
         public void GetBBox_ShouldReturnCorrectBoundaryBox(string path, double minX, double minY, double maxX,
             double maxY)
         {
-            var svgPath = new SVGPathProperties(path, unarc: true);
+            var svgPath = new SvgPath(path, unarc: true);
             var bbox = svgPath.GetBBox();
 
             bbox.Left.Should().BeApproximately(minX, precision: 0.00000000001);

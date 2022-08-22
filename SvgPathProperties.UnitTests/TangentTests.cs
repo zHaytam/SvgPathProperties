@@ -261,7 +261,7 @@ namespace SvgPathProperties.UnitTests
 
             for (var i = 0; i < paths.Length; i++)
             {
-                var properties = new SVGPathProperties(paths[i].path);
+                var properties = new SvgPath(paths[i].path);
                 for (var j = 0; j < paths[i].xValues.Length; j++)
                 {
                     var tangent = properties.GetTangentAtLength(

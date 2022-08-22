@@ -1,6 +1,6 @@
 ﻿namespace SvgPathProperties.Base
 {
-    public interface IProperties
+    public interface ICommand
     {
         double Length { get; }
         

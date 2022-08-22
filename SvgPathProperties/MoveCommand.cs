@@ -2,9 +2,9 @@ using SvgPathProperties.Base;
 
 namespace SvgPathProperties
 {
-    public class MoveProperties : IProperties
+    public class MoveCommand : ICommand
     {
-        public MoveProperties(double x, double y)
+        public MoveCommand(double x, double y)
         {
             X = x;
             Y = y;

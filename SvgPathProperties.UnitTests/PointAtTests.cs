@@ -30,7 +30,7 @@ namespace SvgPathProperties.UnitTests
             new double[] { 50, 50, 66.66665649414062, 200, 200, 183.33331298828125, 50 })]
         public void GetPointAtLengthTestingLineTo(string path, double[] xValues, double[] yValues)
         {
-            var properties = new SVGPathProperties(path);
+            var properties = new SvgPath(path);
             for (var j = 0; j < xValues.Length; j++)
             {
                 var position = properties.GetPointAtLength((j * properties.Length) / (xValues.Length - 1));
@@ -60,7 +60,7 @@ namespace SvgPathProperties.UnitTests
             new double[] { 100, 121.3836898803711, 111.11810302734375, 187.49990844726562, 111.11775207519531, 121.38365936279297, 100 })]
         public void GetPointAtLengthTestingQuadraticBézier(string path, double[] xValues, double[] yValues)
         {
-            var properties = new SVGPathProperties(path);
+            var properties = new SvgPath(path);
             for (var j = 0; j < xValues.Length; j++)
             {
                 var position = properties.GetPointAtLength((j * properties.Length) / (xValues.Length - 1));
@@ -75,7 +75,7 @@ namespace SvgPathProperties.UnitTests
         [Fact]
         public void GetPointAtLengthBugTesting()
         {
-            var properties = new SVGPathProperties("M 211.6687111164928,312.6478542077994 C 211.6687111164928,312.6478542077994 211.6687111164928,312.6478542077994 219,293");
+            var properties = new SvgPath("M 211.6687111164928,312.6478542077994 C 211.6687111164928,312.6478542077994 211.6687111164928,312.6478542077994 219,293");
             var pos1 = properties.GetPointAtLength(12);
             var pos2 = properties.GetPointAtLength(11.95);
             var pos3 = properties.GetPointAtLength(12.05);
@@ -88,7 +88,7 @@ namespace SvgPathProperties.UnitTests
         [Fact]
         public void TestingGetPointAtLengthWithStraighLineBezierCurve()
         {
-            var pathData = new SVGPathProperties("M500,300Q425,325 350,350");
+            var pathData = new SvgPath("M500,300Q425,325 350,350");
             var pathLen = pathData.Length;
             Assert.True(Helpers.InDelta(pathLen, 158.11, 0.1)); //Gave undefined
 
@@ -103,17 +103,17 @@ namespace SvgPathProperties.UnitTests
         [Fact]
         public void TestingWithMultipleRings()
         {
-            var properties = new SVGPathProperties("M100,100h100v100h-100Z m200,0h1v1h-1z");
+            var properties = new SvgPath("M100,100h100v100h-100Z m200,0h1v1h-1z");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(100, 100));
             properties.GetPointAtLength(401).Should().BeEquivalentTo(new Point(301, 100));
 
-            properties = new SVGPathProperties("M100,100L200,100 M300,100L400,100");
+            properties = new SvgPath("M100,100L200,100 M300,100L400,100");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(100, 100));
             properties.GetPointAtLength(100).Should().BeEquivalentTo(new Point(200, 100));
             properties.GetPointAtLength(200).Should().BeEquivalentTo(new Point(400, 100));
             properties.GetPointAtLength(200).Should().BeEquivalentTo(properties.GetPointAtLength(500));
 
-            properties = new SVGPathProperties("M100,100 L101,100 M200,0 M500,600 M0,0L1,0L1,1L0,1Z");
+            properties = new SvgPath("M100,100 L101,100 M200,0 M500,600 M0,0L1,0L1,1L0,1Z");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(100, 100));
             properties.GetPointAtLength(1).Should().BeEquivalentTo(new Point(101, 100));
             properties.GetPointAtLength(2).Should().BeEquivalentTo(new Point(1, 0));
@@ -122,11 +122,11 @@ namespace SvgPathProperties.UnitTests
         [Fact]
         public void TestingIssue9()
         {
-            var properties = new SVGPathProperties("M60,20Q60,20 150,20");
+            var properties = new SvgPath("M60,20Q60,20 150,20");
             properties.GetPointAtLength(2).Should().BeEquivalentTo(new Point(62, 20));
             properties.Length.Should().Be(90);
 
-            properties = new SVGPathProperties("M60,20q0,0 90,0");
+            properties = new SvgPath("M60,20q0,0 90,0");
             properties.GetPointAtLength(2).Should().BeEquivalentTo(new Point(62, 20));
             properties.Length.Should().Be(90);
         }
@@ -134,19 +134,19 @@ namespace SvgPathProperties.UnitTests
         [Fact]
         public void CheckNullPathIssue35()
         {
-            var properties = new SVGPathProperties("M0, 0");
+            var properties = new SvgPath("M0, 0");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
             properties.GetTangentAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
             properties.GetPropertiesAtLength(0).Should().BeEquivalentTo(new PointProperties(0, 0, 0, 0));
-            properties = new SVGPathProperties(null);
+            properties = new SvgPath(null);
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
             properties.GetTangentAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
             properties.GetPropertiesAtLength(0).Should().BeEquivalentTo(new PointProperties(0, 0, 0, 0));
-            properties = new SVGPathProperties("");
+            properties = new SvgPath("");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
             properties.GetTangentAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
             properties.GetPropertiesAtLength(0).Should().BeEquivalentTo(new PointProperties(0, 0, 0, 0));
-            properties = new SVGPathProperties("M10, 10");
+            properties = new SvgPath("M10, 10");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(10, 10));
             properties.GetTangentAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
             properties.GetPropertiesAtLength(0).Should().BeEquivalentTo(new PointProperties(10, 10, 0, 0));
@@ -155,7 +155,7 @@ namespace SvgPathProperties.UnitTests
         [Fact]
         public void TestingDenegeratedQuadraticCurvesIssue43()
         {
-            var properties = new SVGPathProperties(
+            var properties = new SvgPath(
                 "M224,32C153,195,69,366,76,544C77,567,97,585,105,606C133,683,137,768,175,840C193,875,225,902,250,932"
             );
             properties.GetPointAtLength(300).Should().BeEquivalentTo(new Point(111.7377391058728, 310.0179550672576));
@@ -167,10 +167,10 @@ namespace SvgPathProperties.UnitTests
         [Fact]
         public void TestingFirstPointOfZeroLengthFraction()
         {
-            var properties = new SVGPathProperties("M 0,0 l 0 0 l 10 10");
+            var properties = new SvgPath("M 0,0 l 0 0 l 10 10");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(0, 0));
 
-            properties = new SVGPathProperties("M 1,1 l 1 1");
+            properties = new SvgPath("M 1,1 l 1 1");
             properties.GetPointAtLength(0).Should().BeEquivalentTo(new Point(1, 1));
         }
     }
