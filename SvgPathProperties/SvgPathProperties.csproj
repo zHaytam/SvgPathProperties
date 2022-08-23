@@ -8,7 +8,7 @@
 		<Description>Pure C# SVG Path parser and calculations</Description>
 		<RepositoryUrl>https://github.com/zHaytam/SvgPathProperties</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/zHaytam/SvgPathProperties</PackageProjectUrl>
-		<PackageTags>svg, path, getTotalLength, getPointAtLength</PackageTags>
+		<PackageTags>svg, path, getTotalLength, getPointAtLength, getBBox, builder</PackageTags>
 		<Version>1.1.0</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
