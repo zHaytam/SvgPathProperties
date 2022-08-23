@@ -5,11 +5,19 @@
 		<Authors>zHaytam</Authors>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Description>Pure C# SVG path functions (getTotalLength() and getPointAtLength())</Description>
+		<Description>Pure C# SVG Path parser and calculations</Description>
 		<RepositoryUrl>https://github.com/zHaytam/SvgPathProperties</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/zHaytam/SvgPathProperties</PackageProjectUrl>
 		<PackageTags>svg, path, getTotalLength, getPointAtLength</PackageTags>
 		<Version>1.1.0</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
 
 </Project>
