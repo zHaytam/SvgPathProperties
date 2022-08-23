@@ -151,14 +151,7 @@ namespace SvgPathProperties
 
         public override string ToString()
         {
-            if (IsQuadratic)
-            {
-                return $"Q {Cp1.X} {Cp1.Y} {Cp2OrEnd.X} {Cp2OrEnd.Y}";
-            }
-            else
-            {
-                return $"C {Cp1.X} {Cp1.Y} {Cp2OrEnd.X} {Cp2OrEnd.Y} {End.X} {End.Y}";
-            }
+            return base.ToString();
         }
     }
 }
