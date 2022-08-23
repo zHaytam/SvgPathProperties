@@ -26,406 +26,80 @@ namespace SvgPathProperties
 
             for (var i = 0; i < parsed.Count; i++)
             {
-                if (parsed[i].Item1 == 'M')
+                if (parsed[i].Item1 == 'M' || parsed[i].Item1 == 'm')
                 {
-                    _cur = new[] { parsed[i].Item2[0], parsed[i].Item2[1] };
-                    _ringStart = (_cur[0], _cur[1]);
-                    _commands.Add(new MoveCommand(_cur[0], _cur[1]));
-                    if (i == 0)
-                    {
-                        _initialPoint = new Point(x: parsed[i].Item2[0], y: parsed[i].Item2[1]);
-                    }
+                    AddMoveTo(parsed[i].Item2[0], parsed[i].Item2[1], parsed[i].Item1 == 'M');
                 }
-                else if (parsed[i].Item1 == 'm')
+                // LineTo
+                else if (parsed[i].Item1 == 'L' || parsed[i].Item1 == 'l')
                 {
-                    _cur = new double[] { parsed[i].Item2[0] + _cur[0], parsed[i].Item2[1] + _cur[1] };
-                    _ringStart = (_cur[0], _cur[1]);
-                    _commands.Add(new MoveCommand(_cur[0], _cur[1]));
+                    AddLineTo(parsed[i].Item2[0], parsed[i].Item2[1], parsed[i].Item1 == 'L');
                 }
-                // lineTo
-                else if (parsed[i].Item1 == 'L')
+                else if (parsed[i].Item1 == 'H' || parsed[i].Item1 == 'h')
                 {
-                    var l = new LineCommand(_cur[0], parsed[i].Item2[0], _cur[1], parsed[i].Item2[1]);
-                    Length += l.Length;
-                    _commands.Add(l);
-                    _cur = new double[] { parsed[i].Item2[0], parsed[i].Item2[1] };
+                    AddHorizontalLineTo(parsed[i].Item2[0], parsed[i].Item1 == 'H');
                 }
-                else if (parsed[i].Item1 == 'l')
+                else if (parsed[i].Item1 == 'V' || parsed[i].Item1 == 'v')
                 {
-                    var l = new LineCommand(_cur[0], parsed[i].Item2[0] + _cur[0], _cur[1], parsed[i].Item2[1] + _cur[1]);
-                    Length += l.Length;
-                    _commands.Add(l);
-                    _cur = new double[] { parsed[i].Item2[0] + _cur[0], parsed[i].Item2[1] + _cur[1] };
+                    AddVerticalLineTo(parsed[i].Item2[0], parsed[i].Item1 == 'V');
                 }
-                else if (parsed[i].Item1 == 'H')
-                {
-                    Length += Math.Abs(_cur[0] - parsed[i].Item2[0]);
-                    _commands.Add(new LineCommand(_cur[0], parsed[i].Item2[0], _cur[1], _cur[1]));
-                    _cur[0] = parsed[i].Item2[0];
-                }
-                else if (parsed[i].Item1 == 'h')
-                {
-                    Length += Math.Abs(parsed[i].Item2[0]);
-                    _commands.Add(new LineCommand(_cur[0], _cur[0] + parsed[i].Item2[0], _cur[1], _cur[1]));
-                    _cur[0] = parsed[i].Item2[0] + _cur[0];
-                }
-                else if (parsed[i].Item1 == 'V')
-                {
-                    Length += Math.Abs(_cur[1] - parsed[i].Item2[0]);
-                    _commands.Add(new LineCommand(_cur[0], _cur[0], _cur[1], parsed[i].Item2[0]));
-                    _cur[1] = parsed[i].Item2[0];
-                }
-                else if (parsed[i].Item1 == 'v')
-                {
-                    Length += Math.Abs(parsed[i].Item2[0]);
-                    _commands.Add(new LineCommand(_cur[0], _cur[0], _cur[1], _cur[1] + parsed[i].Item2[0]));
-                    _cur[1] = parsed[i].Item2[0] + _cur[1];
-                }
-                //Close path
+                // Close Path
                 else if (parsed[i].Item1 == 'z' || parsed[i].Item1 == 'Z')
                 {
-                    var l = new LineCommand(_cur[0], _ringStart.Item1, _cur[1], _ringStart.Item2, closePath: true);
-                    Length += l.Length;
-                    _commands.Add(l);
-                    _cur = new double[] { _ringStart.Item1, _ringStart.Item2 };
+                    AddClosePath();
                 }
                 // Cubic Bezier curves
-                else if (parsed[i].Item1 == 'C')
+                else if (parsed[i].Item1 == 'C' || parsed[i].Item1 == 'c')
                 {
-                    _lastCurve = new BezierCommand(
-                        _cur[0],
-                        _cur[1],
+                    AddCubicBezierCurve(
                         parsed[i].Item2[0],
                         parsed[i].Item2[1],
                         parsed[i].Item2[2],
                         parsed[i].Item2[3],
                         parsed[i].Item2[4],
-                        parsed[i].Item2[5]
-                    );
-                    Length += _lastCurve.Length;
-                    _cur = new double[] { parsed[i].Item2[4], parsed[i].Item2[5] };
-                    _commands.Add(_lastCurve);
+                        parsed[i].Item2[5],
+                        parsed[i].Item1 == 'C');
                 }
-                else if (parsed[i].Item1 == 'c')
+                else if (parsed[i].Item1 == 'S' || parsed[i].Item1 == 's')
                 {
-                    _lastCurve = new BezierCommand(
-                        _cur[0],
-                        _cur[1],
-                        _cur[0] + parsed[i].Item2[0],
-                        _cur[1] + parsed[i].Item2[1],
-                        _cur[0] + parsed[i].Item2[2],
-                        _cur[1] + parsed[i].Item2[3],
-                        _cur[0] + parsed[i].Item2[4],
-                        _cur[1] + parsed[i].Item2[5]
-                    );
-                    if (_lastCurve.Length > 0)
-                    {
-                        Length += _lastCurve.Length;
-                        _commands.Add(_lastCurve);
-                        _cur = new double[] { parsed[i].Item2[4] + _cur[0], parsed[i].Item2[5] + _cur[1] };
-                    }
-                    else
-                    {
-                        _commands.Add(new LineCommand(_cur[0], _cur[0], _cur[1], _cur[1]));
-                    }
-                }
-                else if (parsed[i].Item1 == 'S')
-                {
-                    if (i > 0 && new char[] { 'C', 'c', 'S', 's' }.Contains(parsed[i - 1].Item1))
-                    {
-                        if (_lastCurve != null)
-                        {
-                            var c = _lastCurve.Cp2OrEnd;
-                            _lastCurve = new BezierCommand(
-                                _cur[0],
-                                _cur[1],
-                                2 * _cur[0] - c.X,
-                                2 * _cur[1] - c.Y,
-                                parsed[i].Item2[0],
-                                parsed[i].Item2[1],
-                                parsed[i].Item2[2],
-                                parsed[i].Item2[3]
-                            );
-                        }
-                    }
-                    else
-                    {
-                        _lastCurve = new BezierCommand(
-                            _cur[0],
-                            _cur[1],
-                            _cur[0],
-                            _cur[1],
-                            parsed[i].Item2[0],
-                            parsed[i].Item2[1],
-                            parsed[i].Item2[2],
-                            parsed[i].Item2[3]
-                        );
-                    }
-
-                    if (_lastCurve != null)
-                    {
-                        Length += _lastCurve.Length;
-                        _cur = new double[] { parsed[i].Item2[2], parsed[i].Item2[3] };
-                        _commands.Add(_lastCurve);
-                    }
-                }
-                else if (parsed[i].Item1 == 's')
-                {
-                    if (i > 0 && new char[] { 'C', 'c', 'S', 's' }.Contains(parsed[i - 1].Item1))
-                    {
-                        if (_lastCurve != null)
-                        {
-                            var c = _lastCurve.Cp2OrEnd;
-                            var d = _lastCurve.End;
-                            _lastCurve = new BezierCommand(
-                                _cur[0],
-                                _cur[1],
-                                _cur[0] + d.X - c.X,
-                                _cur[1] + d.Y - c.Y,
-                                _cur[0] + parsed[i].Item2[0],
-                                _cur[1] + parsed[i].Item2[1],
-                                _cur[0] + parsed[i].Item2[2],
-                                _cur[1] + parsed[i].Item2[3]
-                            );
-                        }
-                    }
-                    else
-                    {
-                        _lastCurve = new BezierCommand(
-                            _cur[0],
-                            _cur[1],
-                            _cur[0],
-                            _cur[1],
-                            _cur[0] + parsed[i].Item2[0],
-                            _cur[1] + parsed[i].Item2[1],
-                            _cur[0] + parsed[i].Item2[2],
-                            _cur[1] + parsed[i].Item2[3]
-                        );
-                    }
-
-                    if (_lastCurve != null)
-                    {
-                        Length += _lastCurve.Length;
-                        _cur = new double[] { parsed[i].Item2[2] + _cur[0], parsed[i].Item2[3] + _cur[1] };
-                        _commands.Add(_lastCurve);
-                    }
+                    AddSmoothCubicBezierCurve(
+                        parsed[i].Item2[0],
+                        parsed[i].Item2[1],
+                        parsed[i].Item2[2],
+                        parsed[i].Item2[3],
+                        parsed[i].Item1 == 'S');
                 }
                 // Quadratic Bezier curves
-                else if (parsed[i].Item1 == 'Q')
+                else if (parsed[i].Item1 == 'Q' || parsed[i].Item1 == 'q')
                 {
-                    if (_cur[0] == parsed[i].Item2[0] && _cur[1] == parsed[i].Item2[1])
-                    {
-                        var linearCurve = new LineCommand(
-                            parsed[i].Item2[0],
-                            parsed[i].Item2[2],
-                            parsed[i].Item2[1],
-                            parsed[i].Item2[3]
-                        );
-                        Length += linearCurve.Length;
-                        _commands.Add(linearCurve);
-                    }
-                    else
-                    {
-                        _lastCurve = new BezierCommand(
-                            _cur[0],
-                            _cur[1],
-                            parsed[i].Item2[0],
-                            parsed[i].Item2[1],
-                            parsed[i].Item2[2],
-                            parsed[i].Item2[3],
-                            null,
-                            null
-                        );
-                        Length += _lastCurve.Length;
-                        _commands.Add(_lastCurve);
-                    }
-
-                    _cur = new double[] { parsed[i].Item2[2], parsed[i].Item2[3] };
-                    _prevPoint = (parsed[i].Item2[0], parsed[i].Item2[1]);
+                    AddQuadraticBezierCurve(
+                        parsed[i].Item2[0],
+                        parsed[i].Item2[1],
+                        parsed[i].Item2[2],
+                        parsed[i].Item2[3],
+                        parsed[i].Item1 == 'Q');
                 }
-                else if (parsed[i].Item1 == 'q')
+                else if (parsed[i].Item1 == 'T' || parsed[i].Item1 == 't')
                 {
-                    if (parsed[i].Item2[0] == 0 && parsed[i].Item2[1] == 0)
-                    {
-                        var linearCurve = new LineCommand(
-                            _cur[0] + parsed[i].Item2[0],
-                            _cur[0] + parsed[i].Item2[2],
-                            _cur[1] + parsed[i].Item2[1],
-                            _cur[1] + parsed[i].Item2[3]
-                        );
-                        Length += linearCurve.Length;
-                        _commands.Add(linearCurve);
-                    }
-                    else
-                    {
-                        _lastCurve = new BezierCommand(
-                            _cur[0],
-                            _cur[1],
-                            _cur[0] + parsed[i].Item2[0],
-                            _cur[1] + parsed[i].Item2[1],
-                            _cur[0] + parsed[i].Item2[2],
-                            _cur[1] + parsed[i].Item2[3],
-                            null,
-                            null
-                        );
-                        Length += _lastCurve.Length;
-                        _commands.Add(_lastCurve);
-                    }
-
-                    _prevPoint = (_cur[0] + parsed[i].Item2[0], _cur[1] + parsed[i].Item2[1]);
-                    _cur = new double[] { parsed[i].Item2[2] + _cur[0], parsed[i].Item2[3] + _cur[1] };
-                }
-                else if (parsed[i].Item1 == 'T')
-                {
-                    if (i > 0 && new char[] { 'Q', 'q', 'T', 't' }.Contains(parsed[i - 1].Item1))
-                    {
-                        _lastCurve = new BezierCommand(
-                            _cur[0],
-                            _cur[1],
-                            2 * _cur[0] - _prevPoint.Item1,
-                            2 * _cur[1] - _prevPoint.Item2,
-                            parsed[i].Item2[0],
-                            parsed[i].Item2[1],
-                            null,
-                            null
-                        );
-                        _commands.Add(_lastCurve);
-                        Length += _lastCurve.Length;
-                    }
-                    else
-                    {
-                        var linearCurve = new LineCommand(_cur[0], parsed[i].Item2[0], _cur[1], parsed[i].Item2[1]);
-                        _commands.Add(linearCurve);
-                        Length += linearCurve.Length;
-                    }
-
-                    _prevPoint = (2 * _cur[0] - _prevPoint.Item1, 2 * _cur[1] - _prevPoint.Item2);
-                    _cur = new double[] { parsed[i].Item2[0], parsed[i].Item2[1] };
-                }
-                else if (parsed[i].Item1 == 't')
-                {
-                    if (i > 0 && new char[] { 'Q', 'q', 'T', 't' }.Contains(parsed[i - 1].Item1))
-                    {
-                        _lastCurve = new BezierCommand(
-                            _cur[0],
-                            _cur[1],
-                            2 * _cur[0] - _prevPoint.Item1,
-                            2 * _cur[1] - _prevPoint.Item2,
-                            _cur[0] + parsed[i].Item2[0],
-                            _cur[1] + parsed[i].Item2[1],
-                            null,
-                            null
-                        );
-                        Length += _lastCurve.Length;
-                        _commands.Add(_lastCurve);
-                    }
-                    else
-                    {
-                        var linearCurve = new LineCommand(
-                            _cur[0],
-                            _cur[0] + parsed[i].Item2[0],
-                            _cur[1],
-                            _cur[1] + parsed[i].Item2[1]
-                        );
-                        Length += linearCurve.Length;
-                        _commands.Add(linearCurve);
-                    }
-
-                    _prevPoint = (2 * _cur[0] - _prevPoint.Item1, 2 * _cur[1] - _prevPoint.Item2);
-                    _cur = new double[] { parsed[i].Item2[0] + _cur[0], parsed[i].Item2[1] + _cur[1] };
+                    AddSmoothQuadraticBezierCurve(
+                        parsed[i].Item2[0],
+                        parsed[i].Item2[1],
+                        parsed[i].Item1 == 'T');
                 }
                 // Arcs
-                else if (parsed[i].Item1 == 'A')
+                else if (parsed[i].Item1 == 'A' || parsed[i].Item1 == 'a')
                 {
-                    if (unarc)
-                    {
-                        var newSegments = ArcUtils.ToCurve(_cur[0], _cur[1], parsed[i].Item2[5], parsed[i].Item2[6],
-                            parsed[i].Item2[3], parsed[i].Item2[4], parsed[i].Item2[0], parsed[i].Item2[1],
-                            parsed[i].Item2[2]);
-                        if (newSegments.Count == 0)
-                        {
-                            var l = new LineCommand(_cur[0], _cur[1], parsed[i].Item2[5], parsed[i].Item2[6]);
-                            Length += l.Length;
-                            _commands.Add(l);
-                        }
-                        else
-                        {
-                            foreach (var s in newSegments)
-                            {
-                                var c = new BezierCommand(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
-                                Length += c.Length;
-                                _commands.Add(c);
-                            }
-                        }
-
-                        _cur = new[] { parsed[i].Item2[5], parsed[i].Item2[6] };
-                    }
-                    else
-                    {
-                        var arcCurve = new ArcCommand(
-                            _cur[0],
-                            _cur[1],
-                            parsed[i].Item2[0],
-                            parsed[i].Item2[1],
-                            parsed[i].Item2[2],
-                            parsed[i].Item2[3] == 1,
-                            parsed[i].Item2[4] == 1,
-                            parsed[i].Item2[5],
-                            parsed[i].Item2[6]
-                        );
-
-                        Length += arcCurve.Length;
-                        _cur = new[] { parsed[i].Item2[5], parsed[i].Item2[6] };
-                        _commands.Add(arcCurve);
-                    }
+                    AddArc(
+                        parsed[i].Item2[0],
+                        parsed[i].Item2[1],
+                        parsed[i].Item2[2],
+                        parsed[i].Item2[3] == 1,
+                        parsed[i].Item2[4] == 1,
+                        parsed[i].Item2[5],
+                        parsed[i].Item2[6],
+                        unarc,
+                        parsed[i].Item1 == 'A');
                 }
-                else if (parsed[i].Item1 == 'a')
-                {
-                    if (unarc)
-                    {
-                        var newSegments = ArcUtils.ToCurve(_cur[0], _cur[1], _cur[0] + parsed[i].Item2[5],
-                            _cur[1] + parsed[i].Item2[6], parsed[i].Item2[3], parsed[i].Item2[4], parsed[i].Item2[0],
-                            parsed[i].Item2[1], parsed[i].Item2[2]);
-
-                        if (newSegments.Count == 0)
-                        {
-                            var l = new LineCommand(_cur[0], _cur[1], _cur[0] + parsed[i].Item2[5], _cur[1] + parsed[i].Item2[6]);
-                            Length += l.Length;
-                            _commands.Add(l);
-                        }
-                        else
-                        {
-                            foreach (var s in newSegments)
-                            {
-                                var c = new BezierCommand(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
-                                Length += c.Length;
-                                _commands.Add(c);
-                            }
-                        }
-
-                        _cur = new[] { _cur[0] + parsed[i].Item2[5], _cur[1] + parsed[i].Item2[6] };
-                    }
-                    else
-                    {
-                        var arcCurve = new ArcCommand(
-                            _cur[0],
-                            _cur[1],
-                            parsed[i].Item2[0],
-                            parsed[i].Item2[1],
-                            parsed[i].Item2[2],
-                            parsed[i].Item2[3] == 1,
-                            parsed[i].Item2[4] == 1,
-                            _cur[0] + parsed[i].Item2[5],
-                            _cur[1] + parsed[i].Item2[6]
-                        );
-
-                        Length += arcCurve.Length;
-                        _cur = new[] { _cur[0] + parsed[i].Item2[5], _cur[1] + parsed[i].Item2[6] };
-                        _commands.Add(arcCurve);
-                    }
-                }
-
-                _partialLengths.Add(Length);
             }
         }
 
@@ -543,15 +217,13 @@ namespace SvgPathProperties
 
         public SvgPath AddMoveTo(double x, double y, bool abs = true)
         {
-            if (abs)
+            if (!abs)
             {
-                _cur = new[] { x, y };
-            }
-            else
-            {
-                _cur = new double[] { x + _cur[0], y + _cur[1] };
+                x += _cur[0];
+                y += _cur[1];
             }
 
+            _cur = new[] { x, y };
             _ringStart = (_cur[0], _cur[1]);
             _commands.Add(new MoveCommand(_cur[0], _cur[1]));
 
