@@ -5,12 +5,13 @@ namespace SvgPathProperties
 {
     public class LineCommand : ICommand
     {
-        public LineCommand(double fromX, double toX, double fromY, double toY)
+        public LineCommand(double fromX, double toX, double fromY, double toY, bool closePath = false)
         {
             FromX = fromX;
             FromY = fromY;
             ToX = toX;
             ToY = toY;
+            ClosePath = closePath;
             Length = Math.Sqrt(Math.Pow(FromX - ToX, 2) + Math.Pow(FromY - ToY, 2));
         }
 
@@ -18,6 +19,7 @@ namespace SvgPathProperties
         public double FromY { get; }
         public double ToX { get; }
         public double ToY { get; }
+        public bool ClosePath { get; }
         public double Length { get; }
 
         public Point GetPointAtLength(double pos)
@@ -49,6 +51,11 @@ namespace SvgPathProperties
         {
             var module = Math.Sqrt((ToX - FromX) * (ToX - FromX) + (ToY - FromY) * (ToY - FromY));
             return new Point(x: (ToX - FromX) / module, y: (ToY - FromY) / module);
+        }
+
+        public override string ToString()
+        {
+            return ClosePath ? "Z" : $"L {ToX} {ToY}";
         }
     }
 }

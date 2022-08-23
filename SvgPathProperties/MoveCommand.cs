@@ -30,5 +30,10 @@ namespace SvgPathProperties
         }
 
         public Rect GetBBox() => new Rect(X, Y, X, Y);
+
+        public override string ToString()
+        {
+            return $"M {X} {Y}";
+        }
     }
 }

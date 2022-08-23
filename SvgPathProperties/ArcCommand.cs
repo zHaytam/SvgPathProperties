@@ -264,5 +264,10 @@ namespace SvgPathProperties
             //};
             return resultantArcLength;
         }
+
+        public override string ToString()
+        {
+            return $"A {Rx} {Ry} {XAxisRotate} {Convert.ToInt32(LargeArcFlag)} {Convert.ToInt32(SweepFlag)} {ToX} {ToY}";
+        }
     }
 }
