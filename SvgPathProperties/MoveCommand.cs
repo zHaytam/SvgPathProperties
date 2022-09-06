@@ -1,5 +1,7 @@
 using SvgPathProperties.Base;
 
+using System;
+
 namespace SvgPathProperties
 {
     public class MoveCommand : ICommand
@@ -33,7 +35,7 @@ namespace SvgPathProperties
 
         public override string ToString()
         {
-            return $"M {X} {Y}";
+            return FormattableString.Invariant($"M {X} {Y}");
         }
     }
 }
