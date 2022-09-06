@@ -1,4 +1,5 @@
 ﻿using SvgPathProperties.Base;
+
 using System;
 
 namespace SvgPathProperties
@@ -267,7 +268,7 @@ namespace SvgPathProperties
 
         public override string ToString()
         {
-            return $"A {Rx} {Ry} {XAxisRotate} {Convert.ToInt32(LargeArcFlag)} {Convert.ToInt32(SweepFlag)} {ToX} {ToY}";
+            return FormattableString.Invariant($"A {Rx} {Ry} {XAxisRotate} {Convert.ToInt32(LargeArcFlag)} {Convert.ToInt32(SweepFlag)} {ToX} {ToY}");
         }
     }
 }

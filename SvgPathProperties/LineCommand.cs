@@ -1,4 +1,5 @@
 ﻿using SvgPathProperties.Base;
+
 using System;
 
 namespace SvgPathProperties
@@ -55,7 +56,7 @@ namespace SvgPathProperties
 
         public override string ToString()
         {
-            return ClosePath ? "Z" : $"L {ToX} {ToY}";
+            return ClosePath ? "Z" : FormattableString.Invariant($"L {ToX} {ToY}");
         }
     }
 }

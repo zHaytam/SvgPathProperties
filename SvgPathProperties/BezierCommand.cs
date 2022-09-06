@@ -1,4 +1,5 @@
 ﻿using SvgPathProperties.Base;
+
 using System;
 
 namespace SvgPathProperties
@@ -153,11 +154,11 @@ namespace SvgPathProperties
         {
             if (IsQuadratic)
             {
-                return $"Q {Cp1.X} {Cp1.Y} {Cp2OrEnd.X} {Cp2OrEnd.Y}";
+                return FormattableString.Invariant($"Q {Cp1.X} {Cp1.Y} {Cp2OrEnd.X} {Cp2OrEnd.Y}");
             }
             else
             {
-                return $"C {Cp1.X} {Cp1.Y} {Cp2OrEnd.X} {Cp2OrEnd.Y} {End.X} {End.Y}";
+                return FormattableString.Invariant($"C {Cp1.X} {Cp1.Y} {Cp2OrEnd.X} {Cp2OrEnd.Y} {End.X} {End.Y}");
             }
         }
     }
